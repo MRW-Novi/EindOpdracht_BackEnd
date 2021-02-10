@@ -6,12 +6,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Entity
@@ -49,8 +47,15 @@ public class Venue {
     @OneToMany(mappedBy = "venue")
     private List<Reservation> venueReservationList;
 
+    @OneToOne(mappedBy = "venue")
+    private User user;
+
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getVenueName() {
@@ -106,7 +111,7 @@ public class Venue {
     }
 
     public void setVenueReservationList(List<Reservation> venueReservationList) {
-        this.venueReservationList = venueReservationList; //TODO: toevoegen aan deze lijst, altijd eerst getten, dan aan de lijst toevoegen, dan weer setten?
+        this.venueReservationList = venueReservationList;
     }
 
     public int getSlotsPerDay() {
@@ -125,9 +130,17 @@ public class Venue {
         this.peoplePerSlot = peoplePerSlot;
     }
 
-    public boolean addReservation(Reservation reservation ) {
+    public User getUser() {
+        return user;
+    }
 
-        if(reservationCheck(reservation)) {
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public boolean addReservation(Reservation reservation) {
+
+        if (reservationCheck(reservation)) {
             venueReservationList.add(reservation);
             return true;
         }
@@ -137,9 +150,9 @@ public class Venue {
     private boolean reservationCheck(Reservation newReservation) {
         List<Reservation> filteredReservations =
                 venueReservationList.stream()
-                .filter(c -> c.getDate() == newReservation.getDate())
-                .filter(c -> c.getTimeSlotIndex() == newReservation.getTimeSlotIndex())
-                .collect(Collectors.toList());
+                        .filter(c -> c.getDate() == newReservation.getDate())
+                        .filter(c -> c.getTimeSlotIndex() == newReservation.getTimeSlotIndex())
+                        .collect(Collectors.toList());
 
 
         int amountofPeeps = 0;
@@ -148,15 +161,13 @@ public class Venue {
             amountofPeeps += r.getGroupSize();
         }
 
-        if(amountofPeeps + newReservation.getGroupSize() <= this.peoplePerSlot) {
+        if (amountofPeeps + newReservation.getGroupSize() <= this.peoplePerSlot) {
             return true;
         }
 
         return false;
     }
 
-    //0.
-    //1. filter uit lijst alles afhankelijk van datum
-    //2. tel personen op van gefilterde lijst
+
 }
 

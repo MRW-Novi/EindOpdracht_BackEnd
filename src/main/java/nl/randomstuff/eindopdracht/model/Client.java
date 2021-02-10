@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.List;
 
@@ -23,11 +24,11 @@ public class Client {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email_address")
-    private String emailAddress;
-
     @OneToMany(mappedBy = "client")
     private List<Reservation> clientReservationList;
+
+    @OneToOne(mappedBy = "client")
+    private User user;
 
     public long getId() {
         return id;
@@ -53,19 +54,19 @@ public class Client {
         this.lastName = lastName;
     }
 
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
     public List<Reservation> getClientReservationList() {
         return clientReservationList;
     }
 
     public void setClientReservationList(List<Reservation> reservationList) {
         this.clientReservationList = reservationList;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

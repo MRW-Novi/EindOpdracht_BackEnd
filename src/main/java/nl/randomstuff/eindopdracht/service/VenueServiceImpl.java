@@ -26,7 +26,7 @@ public class VenueServiceImpl implements VenueService {
 
         Optional<Venue> venueFromDb = venueRepository.findById(id);
 
-        if (venueFromDb.isPresent()){
+        if (venueFromDb.isPresent()) {
             return ResponseEntity.status(200).body(venueRepository.findById(id));
         }
         return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
@@ -37,7 +37,7 @@ public class VenueServiceImpl implements VenueService {
     public ResponseEntity<?> deleteVenue(long id) {
         Optional<Venue> venueFromDb = venueRepository.findById(id);
 
-        if (venueFromDb.isPresent()){
+        if (venueFromDb.isPresent()) {
             venueRepository.deleteById(id);
             return ResponseEntity.status(200).body("Venue with id " + id + " successfully deleted");
         }
@@ -84,9 +84,10 @@ public class VenueServiceImpl implements VenueService {
 
         Optional<Venue> venueFromDb = venueRepository.findById(id);
 
-        if (venueFromDb.isPresent()){
-            venueFromDb.get().addReservation(reservation);
-            return ResponseEntity.status(200).body("Reservation with id:" + reservation.getId() + ", successfully added");
+        if (venueFromDb.isPresent()) {
+            if (venueFromDb.get().addReservation(reservation)) {
+                return ResponseEntity.status(200).body("Reservation with id:" + reservation.getId() + ", successfully added");
+            }
         }
 
         return ResponseEntity.status(500).body("Venue with id " + id + " not found.");

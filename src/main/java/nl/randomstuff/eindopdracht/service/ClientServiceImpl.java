@@ -59,7 +59,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ResponseEntity<?> saveClient(Client client) {
-        Client newClient = clientRepository.save(client);//TODO: klopdah?
+        Client newClient = clientRepository.save(client);
         return ResponseEntity.status(200).body("user with id " + newClient.getId() + " successfully created");
     }
 
@@ -71,7 +71,6 @@ public class ClientServiceImpl implements ClientService {
         if (clientFromDb.isPresent()) {
             clientFromDb.get().setFirstName(client.getFirstName());
             clientFromDb.get().setLastName(client.getLastName());
-            clientFromDb.get().setEmailAddress(client.getEmailAddress());
             return ResponseEntity.status(200).body("User with id " + id + " updated");
         } else {
             return ResponseEntity.status(500).body("User with id " + id + " not found.");

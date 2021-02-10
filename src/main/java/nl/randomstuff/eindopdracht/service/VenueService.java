@@ -2,10 +2,7 @@ package nl.randomstuff.eindopdracht.service;
 
 import nl.randomstuff.eindopdracht.model.Reservation;
 import nl.randomstuff.eindopdracht.model.Venue;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 public interface VenueService {
 

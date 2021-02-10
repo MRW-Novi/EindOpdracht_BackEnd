@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MainController {
 
-    @GetMapping(value="/")
+    @GetMapping(value = "/")
     public ResponseEntity<Object> sayHello() {
         return new ResponseEntity<>("You found the backend server, congratulations!", HttpStatus.OK);
     }
