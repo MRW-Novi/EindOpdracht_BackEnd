@@ -1,4 +1,4 @@
-package nl.randomstuff.eindopdracht.payload.response;
+package nl.randomstuff.eindopdracht.payload;
 
 import nl.randomstuff.eindopdracht.model.Reservation;
 

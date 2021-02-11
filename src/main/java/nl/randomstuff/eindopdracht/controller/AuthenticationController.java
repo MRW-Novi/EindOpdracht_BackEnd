@@ -1,7 +1,7 @@
 package nl.randomstuff.eindopdracht.controller;
 
-import nl.randomstuff.eindopdracht.model.AuthenticationRequest;
-import nl.randomstuff.eindopdracht.model.AuthenticationResponse;
+import nl.randomstuff.eindopdracht.payload.AuthenticationRequest;
+import nl.randomstuff.eindopdracht.payload.AuthenticationResponse;
 import nl.randomstuff.eindopdracht.service.CustomUserDetailsService;
 import nl.randomstuff.eindopdracht.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;

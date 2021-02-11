@@ -1,14 +1,16 @@
 package nl.randomstuff.eindopdracht.service;
 
+import nl.randomstuff.eindopdracht.exception.RecordNotFoundException;
 import nl.randomstuff.eindopdracht.model.Reservation;
 import nl.randomstuff.eindopdracht.model.Venue;
-import nl.randomstuff.eindopdracht.payload.response.VenueResponse;
 import nl.randomstuff.eindopdracht.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class VenueServiceImpl implements VenueService {
@@ -66,17 +68,12 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    public ResponseEntity<?> getVenueData(long id) {
-
-        Optional<Venue> venueFromDb = venueRepository.findById(id);
-
-        VenueResponse venueResponse = new VenueResponse();
-        if (venueFromDb.isPresent()) {
-            venueResponse.setName(venueFromDb.get().getVenueName());
-            return ResponseEntity.status(200).body(venueResponse);
+    public Venue getVenueEntity(long id) {
+        Optional<Venue> venue = venueRepository.findById(id);
+        if (venue.isPresent()) {
+            return venue.get();
         }
-
-        return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
+        throw new RecordNotFoundException(Long.toString(id));
     }
 
     @Override
@@ -92,4 +89,29 @@ public class VenueServiceImpl implements VenueService {
 
         return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
     }
+
+    @Override
+    public ResponseEntity<?> getVenueReservationsByVenueId(long id) {
+
+        Optional<Venue> venue = venueRepository.findById(id);
+
+        if (venue.isPresent()) {
+            return (ResponseEntity.ok().body(venue.get().getVenueReservationList()));
+        }
+        return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
+    }
+
+    @Override
+    public ResponseEntity<?> getVenueAvailability(long id) {
+
+        Venue venue = getVenueEntity(id);
+
+            return (ResponseEntity.ok().body(
+                    venue
+                    .getVenueReservationList()
+                    .stream()
+                    .filter(reservation -> reservation.getDate().isAfter(LocalDate.now()))
+                    .collect(Collectors.toList())
+            ));
+        }
 }

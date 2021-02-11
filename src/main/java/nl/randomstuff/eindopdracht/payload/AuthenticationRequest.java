@@ -1,4 +1,4 @@
-package nl.randomstuff.eindopdracht.model;
+package nl.randomstuff.eindopdracht.payload;
 
 public class AuthenticationRequest {
 

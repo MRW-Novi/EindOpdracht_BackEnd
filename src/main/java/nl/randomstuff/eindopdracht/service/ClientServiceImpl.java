@@ -1,5 +1,6 @@
 package nl.randomstuff.eindopdracht.service;
 
+import nl.randomstuff.eindopdracht.exception.RecordNotFoundException;
 import nl.randomstuff.eindopdracht.model.Client;
 import nl.randomstuff.eindopdracht.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ public class ClientServiceImpl implements ClientService {
 
     @Autowired
     ClientRepository clientRepository;
+
+    @Autowired
+    VenueService venueService;
 
     @Override
     public ResponseEntity<?> getAllClients() {
@@ -30,12 +34,15 @@ public class ClientServiceImpl implements ClientService {
 
         return ResponseEntity.status(500).body("User with id " + id + " not found.");
 
+    }
 
-//        if (clientRepository.existsById(id)) {
-//            return clientRepository.findById(id).orElse(null);
-//        } else {
-//            throw new RecordNotFoundException();
-//        }
+    @Override
+    public Client getClientEntity(long id) {
+        Optional<Client> client = clientRepository.findById(id);
+        if (client.isPresent()) {
+            return client.get();
+        }
+        throw new RecordNotFoundException(Long.toString(id));
     }
 
     @Override
@@ -50,11 +57,6 @@ public class ClientServiceImpl implements ClientService {
 
         return ResponseEntity.status(500).body("User with id " + id + " not found.");
 
-//        if (clientRepository.existsById(id)) {
-//            clientRepository.deleteById(id);
-//        } else {
-//            throw new RecordNotFoundException();
-//        }
     }
 
     @Override
@@ -76,21 +78,6 @@ public class ClientServiceImpl implements ClientService {
             return ResponseEntity.status(500).body("User with id " + id + " not found.");
         }
 
-//        if (clientRepository.existsById(id)) {
-//            try {
-//                Client existingClient = clientRepository.findById(id).orElse(null);
-//                existingClient.setFirstName(client.getFirstName());
-//                existingClient.setLastName(client.getLastName());
-//                existingClient.setEmailAddress(client.getEmailAddress());
-//                clientRepository.save(existingClient);
-//            }
-//            catch (Exception e){
-//                throw new DatabaseErrorException();
-//            }
-//        }
-//        else {
-//            throw new RecordNotFoundException();
-//        }
     }
 
 
@@ -105,5 +92,10 @@ public class ClientServiceImpl implements ClientService {
 
 
         return ResponseEntity.status(500).body("User with id " + id + " not found.");
+    }
+
+    @Override
+    public ResponseEntity<?> getVenueAvailabilityForClient(long id) {
+        return venueService.getVenueAvailability(id);
     }
 }

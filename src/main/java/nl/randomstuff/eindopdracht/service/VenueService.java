@@ -16,7 +16,11 @@ public interface VenueService {
 
     ResponseEntity<?> updateVenue(long id, Venue venue);
 
-    ResponseEntity<?> getVenueData(long id);
+    Venue getVenueEntity(long id);
 
     ResponseEntity<?> addReservation(long id, Reservation reservation);
+
+    ResponseEntity<?> getVenueReservationsByVenueId(long id);
+
+    ResponseEntity<?> getVenueAvailability(long id);
 }

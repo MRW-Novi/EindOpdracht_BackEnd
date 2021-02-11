@@ -9,6 +9,8 @@ public interface ClientService {
 
     ResponseEntity<?> getClientById(long id);
 
+    Client getClientEntity(long id);
+
     ResponseEntity<?> deleteClient(long id);
 
     ResponseEntity<?> saveClient(Client client);
@@ -16,4 +18,6 @@ public interface ClientService {
     ResponseEntity<?> updateClient(long id, Client client);
 
     ResponseEntity<?> getClientReservationsByClientId(long id);
+
+    ResponseEntity<?> getVenueAvailabilityForClient(long id);
 }

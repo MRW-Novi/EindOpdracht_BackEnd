@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 
 public interface UserService {
 
-    ResponseEntity<?> createUser(User user);
+    ResponseEntity<?> createUserAsClient(User user);
+
+    ResponseEntity<?> createUserAsVenue(User user);
 
     ResponseEntity<?> updateUser(String username, User user);
 
@@ -15,7 +17,7 @@ public interface UserService {
 
     ResponseEntity<?> getUserResponse(String username);
 
-    User getUserData(String username);
+    User getUserEntity(String username);
 
     ResponseEntity<?> getAuthorities(String username);
 
