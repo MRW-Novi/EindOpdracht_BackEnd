@@ -25,9 +25,6 @@ public class Venue {
     @Column(name = "venue_name")
     private String venueName;
 
-    @Column(name = "location")
-    private String venueLocation;
-
     @Column(name = "venue_email_address")
     private String venueEmailAddress;
 
@@ -73,12 +70,12 @@ public class Venue {
         this.venueName = venueName;
     }
 
-    public String getVenueLocation() {
-        return venueLocation;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setVenueLocation(String venueLocation) {
-        this.venueLocation = venueLocation;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public String getVenueEmailAddress() {

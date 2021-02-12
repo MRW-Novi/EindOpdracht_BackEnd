@@ -69,4 +69,13 @@ public class Client {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public boolean addReservation(Reservation reservation){
+        try{
+            clientReservationList.add(reservation);
+            return true;
+        }catch(RuntimeException e){
+            return false;
+        }
+    }
 }

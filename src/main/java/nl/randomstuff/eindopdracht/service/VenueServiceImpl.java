@@ -61,7 +61,7 @@ public class VenueServiceImpl implements VenueService {
         if (venueFromDb.isPresent()) {
             venueFromDb.get().setVenueName(venue.getVenueName());
             venueFromDb.get().setVenueEmailAddress(venue.getVenueEmailAddress());
-            venueFromDb.get().setVenueLocation(venue.getVenueLocation());
+            venueFromDb.get().setAddress(venue.getAddress());
             return ResponseEntity.status(200).body("Venue with id " + id + " updated");
         }
         return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
