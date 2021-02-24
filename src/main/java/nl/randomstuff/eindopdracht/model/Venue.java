@@ -1,5 +1,7 @@
 package nl.randomstuff.eindopdracht.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,10 +31,10 @@ public class Venue {
     private String venueEmailAddress;
 
     @Column(name = "startTime")
-    private LocalTime startTime;
+    private String startTime;
 
     @Column(name = "stopTime")
-    private LocalTime stopTime;
+    private String stopTime;
 
     @Column(name = "slotDuration")
     private int slotDuration;
@@ -47,6 +49,7 @@ public class Venue {
     private List<Reservation> venueReservationList;
 
     @OneToOne(mappedBy = "venue")
+    @JsonIgnore
     private User user;
 
     @OneToOne(mappedBy = "venue", cascade = CascadeType.ALL)
@@ -86,19 +89,19 @@ public class Venue {
         this.venueEmailAddress = venueEmailAddress;
     }
 
-    public LocalTime getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public LocalTime getStopTime() {
+    public String getStopTime() {
         return stopTime;
     }
 
-    public void setStopTime(LocalTime stopTime) {
+    public void setStopTime(String stopTime) {
         this.stopTime = stopTime;
     }
 

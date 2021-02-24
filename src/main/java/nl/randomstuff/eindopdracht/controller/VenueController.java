@@ -2,17 +2,12 @@ package nl.randomstuff.eindopdracht.controller;
 
 import nl.randomstuff.eindopdracht.model.Reservation;
 import nl.randomstuff.eindopdracht.model.Venue;
+import nl.randomstuff.eindopdracht.payload.request.ReservationRequest;
 import nl.randomstuff.eindopdracht.service.VenueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 @RequestMapping(value = "/venue")
 @RestController
 //@CrossOrigin(origins = "http://localhost:3001")
@@ -27,8 +22,8 @@ public class VenueController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getVenue(@PathVariable("id") long id) {
-        return venueService.getVenueById(id);
+    public ResponseEntity<?> getVenueData(@PathVariable("id") long id) {
+        return venueService.getVenueDataResponse(id);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -36,24 +31,24 @@ public class VenueController {
         return venueService.deleteVenue(id);
     }
 
-    @PostMapping(value = "")
-    public ResponseEntity<?> saveVenue(@RequestBody Venue venue) {
-        return venueService.saveVenue(venue);
+    @PutMapping(value = "/update")
+    public ResponseEntity<?> updateVenue(@RequestHeader("Authorization") String bearerToken, @RequestBody Venue venue) {
+        return venueService.updateVenue(bearerToken, venue);
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<?> updateVenue(@PathVariable("id") long id, @RequestBody Venue venue) {
-        return venueService.updateVenue(id, venue);
+    @PostMapping(value = "/add_reservation")
+    public ResponseEntity<?> addReservation(@RequestBody ReservationRequest reservationRequest) {
+        return venueService.addReservation(reservationRequest);
     }
 
-    @PostMapping(value = "/{id}")
-    public ResponseEntity<?> addReservation(@PathVariable("id") long id, @RequestBody Reservation reservation) {
-        return venueService.addReservation(id, reservation);
-    }
-
-    @GetMapping(value = "/{id}/availability")
+    @GetMapping(value = "/{id}/reservations")
     public ResponseEntity<?> getVenueReservations(@PathVariable("id") long id){
         return venueService.getVenueReservationsByVenueId(id);
+    }
+
+    @GetMapping(value = "{id}/availability")
+    public ResponseEntity<?> getVenueAvailability(@PathVariable("id") long id) {
+        return venueService.getVenueAvailability(id);
     }
 
 }

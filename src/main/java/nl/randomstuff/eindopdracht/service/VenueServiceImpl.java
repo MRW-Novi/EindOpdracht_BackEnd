@@ -1,37 +1,74 @@
 package nl.randomstuff.eindopdracht.service;
 
 import nl.randomstuff.eindopdracht.exception.RecordNotFoundException;
-import nl.randomstuff.eindopdracht.model.Reservation;
-import nl.randomstuff.eindopdracht.model.Venue;
+import nl.randomstuff.eindopdracht.model.*;
+import nl.randomstuff.eindopdracht.payload.request.ReservationRequest;
+import nl.randomstuff.eindopdracht.payload.response.ReservationListResponse;
+import nl.randomstuff.eindopdracht.payload.response.VenueListResponse;
+import nl.randomstuff.eindopdracht.payload.response.VenueResponse;
+import nl.randomstuff.eindopdracht.repository.UserRepository;
 import nl.randomstuff.eindopdracht.repository.VenueRepository;
+import nl.randomstuff.eindopdracht.service.security.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class VenueServiceImpl implements VenueService {
 
-    @Autowired
+    UserRepository userRepository;
     VenueRepository venueRepository;
+    CustomerService customerService;
+    JwtUtil jwtUtil;
 
-    @Override
-    public ResponseEntity<?> getAllVenues() {
-        return ResponseEntity.status(200).body(venueRepository.findAll());
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setVenueRepository(VenueRepository venueRepository) {
+        this.venueRepository = venueRepository;
+    }
+
+    @Autowired
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    @Autowired
+    public void setJwtUtil(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
-    public ResponseEntity<?> getVenueById(long id) {
+    public ResponseEntity<?> getAllVenues() {
+        VenueListResponse venueListResponse = new VenueListResponse();
+        List<Venue> venueList = venueRepository.findAll();
+        venueListResponse.setVenues(venueList);
+        return ResponseEntity.status(200).body(venueListResponse);
+    }
 
-        Optional<Venue> venueFromDb = venueRepository.findById(id);
+    @Override
+    public ResponseEntity<?> getVenueDataResponse(long id) {
 
-        if (venueFromDb.isPresent()) {
-            return ResponseEntity.status(200).body(venueRepository.findById(id));
-        }
-        return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
+        Venue venue = getVenueEntityThroughVenueId(id);
+
+        VenueResponse venueResponse = new VenueResponse();
+        venueResponse.setId(venue.getId());
+        venueResponse.setName(venue.getVenueName());
+
+        return ResponseEntity.status(200).body(
+                venueResponse
+        );
 
     }
 
@@ -50,44 +87,89 @@ public class VenueServiceImpl implements VenueService {
     @Override
     public ResponseEntity<?> saveVenue(Venue venue) {
         Venue newVenue = venueRepository.save(venue);
-        return ResponseEntity.status(200).body(newVenue.getId());
+        return ResponseEntity.status(200).body(newVenue);
     }
 
     @Override
-    public ResponseEntity<?> updateVenue(long id, Venue venue) {
+    public ResponseEntity<?> updateVenue(String bearerToken, Venue venue) {
 
-        Optional<Venue> venueFromDb = venueRepository.findById(id);
+        String jwtString = jwtUtil.internalParseJwt(bearerToken);
+        String id = jwtUtil.getUsernameFromJwtToken(jwtString);
 
-        if (venueFromDb.isPresent()) {
-            venueFromDb.get().setVenueName(venue.getVenueName());
-            venueFromDb.get().setVenueEmailAddress(venue.getVenueEmailAddress());
-            venueFromDb.get().setAddress(venue.getAddress());
-            return ResponseEntity.status(200).body("Venue with id " + id + " updated");
+        Venue venueEntityThroughUserId = getVenueEntityThroughUserId(id);
+
+        venueEntityThroughUserId.setVenueName(venue.getVenueName());
+        venueEntityThroughUserId.setVenueEmailAddress(venue.getVenueEmailAddress());
+
+        if (venueEntityThroughUserId.getAddress() == null) {
+            venueEntityThroughUserId.setAddress(new Address());
         }
-        return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
+        Address venueAddress = venueEntityThroughUserId.getAddress();
+        Address newAddress = venue.getAddress();
+        venueAddress.setVenue(venueEntityThroughUserId);
+        venueAddress.setCity(newAddress.getCity());
+        venueAddress.setStreetName(newAddress.getStreetName());
+        venueAddress.setNumber(newAddress.getNumber());
+
+        Venue newVenue = venueRepository.save(venueEntityThroughUserId);
+
+//        return ResponseEntity.status(200).body("Venue data of user " + id + " updated");
+        return ResponseEntity.status(200).body(newVenue);
+
+
     }
 
     @Override
-    public Venue getVenueEntity(long id) {
+    public Venue getVenueEntityThroughUserId(String id) {
+
+        Optional<User> user = userRepository.findById(id);
+        Venue venueFromDb;
+
+        if (user.isPresent()) {
+            return venueFromDb = user.get().getVenue();
+        }
+        throw new UsernameNotFoundException(id);
+    }
+
+    @Override
+    public Venue getVenueEntityThroughVenueId(long id) {
+
         Optional<Venue> venue = venueRepository.findById(id);
+
         if (venue.isPresent()) {
             return venue.get();
         }
-        throw new RecordNotFoundException(Long.toString(id));
+        throw new RecordNotFoundException("" + id);
     }
 
     @Override
-    public ResponseEntity<?> addReservation(long id, Reservation reservation) {
+    public ResponseEntity<?> addReservation(ReservationRequest reservationRequest) {
 
-        Optional<Venue> venueFromDb = venueRepository.findById(id);
+        Reservation reservation = new Reservation();
 
-        if (venueFromDb.isPresent()) {
-            if (venueFromDb.get().addReservation(reservation)) {
-                return ResponseEntity.status(200).body("Reservation with id:" + reservation.getId() + ", successfully added");
-            }
-        }
+        System.out.println(reservationRequest.getVenueId());
+        Venue venue = getVenueEntityThroughVenueId(reservationRequest.getVenueId());
+        System.out.println(venue);
 
-        return ResponseEntity.status(500).body("Venue with id " + id + " not found.");
+        System.out.println(reservationRequest.getCustomerId());
+        Customer customer = customerService.getCustomerEntityThroughCustomerId(reservationRequest.getCustomerId());
+        System.out.println(customer);
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        reservation.setDate(LocalDate.parse(reservationRequest.getDate(), dateFormatter));
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm");
+        reservation.setDate(LocalDate.parse(reservationRequest.getTime(), timeFormatter));
+
+        reservation.setGroupSize(reservationRequest.getGroupSize());
+        reservation.setTimeSlotIndex(reservationRequest.getTimeSlotIndex());
+
+        reservation.setVenue(venue);
+        reservation.setCustomer(customer);
+
+        venue.addReservation(reservation);
+        customer.addReservation(reservation);
+
+        return ResponseEntity.ok().body("added reservation:" + reservation.getId() + "to customer" + customer.getFirstName() + "and venue" + venue.getVenueName());
     }
 
     @Override
@@ -104,14 +186,14 @@ public class VenueServiceImpl implements VenueService {
     @Override
     public ResponseEntity<?> getVenueAvailability(long id) {
 
-        Venue venue = getVenueEntity(id);
+        Venue venue = getVenueEntityThroughVenueId(id);
 
-            return (ResponseEntity.ok().body(
-                    venue
-                    .getVenueReservationList()
-                    .stream()
-                    .filter(reservation -> reservation.getDate().isAfter(LocalDate.now()))
-                    .collect(Collectors.toList())
-            ));
-        }
+        List<Reservation> reservations = venue
+                .getVenueReservationList()
+                .stream()
+                .filter(reservation -> reservation.getDate().isAfter(LocalDate.now()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(new ReservationListResponse(reservations));
+    }
 }

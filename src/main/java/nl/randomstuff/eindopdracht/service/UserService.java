@@ -1,15 +1,21 @@
 package nl.randomstuff.eindopdracht.service;
 
+import nl.randomstuff.eindopdracht.model.ERole;
+import nl.randomstuff.eindopdracht.model.Role;
 import nl.randomstuff.eindopdracht.model.User;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.Set;
+
 
 public interface UserService {
 
-    ResponseEntity<?> createUserAsClient(User user);
+//    ResponseEntity<?> createUserAsCustomer(User user);
+//
+//    ResponseEntity<?> createUserAsVenue(User user);
 
-    ResponseEntity<?> createUserAsVenue(User user);
-
-    ResponseEntity<?> updateUser(String username, User user);
+    ResponseEntity<?> updateUser(String bearerToken, User user);
 
     ResponseEntity<?> deleteUser(String username);
 
@@ -19,9 +25,11 @@ public interface UserService {
 
     User getUserEntity(String username);
 
-    ResponseEntity<?> getAuthorities(String username);
+    ResponseEntity<?> saveUser(User user);
 
-    void addAuthority(String username, String authority);
+    Set<Role> getAuthorities(String username);
 
-    void removeAuthority(String username, String authority);
+    void addAuthority(String username, ERole role);
+
+    void removeAuthority(String username, ERole role);
 }

@@ -1,5 +1,7 @@
 package nl.randomstuff.eindopdracht.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,8 +13,8 @@ import javax.persistence.Table;
 import java.util.List;
 
 @Entity
-@Table(name = "client")
-public class Client {
+@Table(name = "customer")
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,10 +26,11 @@ public class Client {
     @Column(name = "last_name")
     private String lastName;
 
-    @OneToMany(mappedBy = "client")
-    private List<Reservation> clientReservationList;
+    @OneToMany(mappedBy = "customer")
+    private List<Reservation> customerReservationList;
 
-    @OneToOne(mappedBy = "client")
+    @OneToOne(mappedBy = "customer")
+    @JsonIgnore
     private User user;
 
     public long getId() {
@@ -54,12 +57,12 @@ public class Client {
         this.lastName = lastName;
     }
 
-    public List<Reservation> getClientReservationList() {
-        return clientReservationList;
+    public List<Reservation> getCustomerReservationList() {
+        return customerReservationList;
     }
 
-    public void setClientReservationList(List<Reservation> reservationList) {
-        this.clientReservationList = reservationList;
+    public void setCustomerReservationList(List<Reservation> reservationList) {
+        this.customerReservationList = reservationList;
     }
 
     public User getUser() {
@@ -72,7 +75,7 @@ public class Client {
 
     public boolean addReservation(Reservation reservation){
         try{
-            clientReservationList.add(reservation);
+            customerReservationList.add(reservation);
             return true;
         }catch(RuntimeException e){
             return false;

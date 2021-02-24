@@ -1,21 +1,12 @@
 package nl.randomstuff.eindopdracht.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import java.util.HashSet;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
 public class User {
+
 
     @Id
     @Column(name = "username", nullable = false, unique = true)
@@ -33,22 +24,19 @@ public class User {
     @Column
     private String email;
 
-    @OneToMany(
-            targetEntity = Authority.class,
-            mappedBy = "username",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
-    )
-    private Set<Authority> authorities = new HashSet<>();
+    @ManyToMany
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_username"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "user_client",
+    @JoinTable(name = "user_customer",
             joinColumns =
                     {@JoinColumn(name = "user_id", referencedColumnName = "username")},
             inverseJoinColumns =
-                    {@JoinColumn(name = "client_id", referencedColumnName = "id")})
-    private Client client; //TODO: waarom hier geen null? (https://www.baeldung.com/jpa-one-to-one)
+                    {@JoinColumn(name = "customer_id", referencedColumnName = "id")})
+    private Customer customer;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name = "user_venue",
@@ -57,6 +45,15 @@ public class User {
             inverseJoinColumns =
                     {@JoinColumn(name = "venue_id", referencedColumnName = "id")})
     private Venue venue;
+
+    public User() {
+    }
+
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
 
     public String getUsername() {
@@ -99,19 +96,27 @@ public class User {
         this.email = email;
     }
 
-    public Set<Authority> getAuthorities() {
-        return authorities;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = authorities;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
-    public void addAuthority(Authority authority) {
-        this.authorities.add(authority);
+    public Venue getVenue() {
+        return venue;
     }
 
-    public void removeAuthority(Authority authorityToRemove) {
-        this.authorities.remove(authorityToRemove);
+    public void setVenue(Venue venue) {
+        this.venue = venue;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

@@ -1,4 +1,4 @@
-package nl.randomstuff.eindopdracht.payload;
+package nl.randomstuff.eindopdracht.payload.response;
 
 public class AuthenticationResponse {
 

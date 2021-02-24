@@ -1,51 +1,54 @@
 package nl.randomstuff.eindopdracht.service;
 
-import nl.randomstuff.eindopdracht.model.Authority;
+import nl.randomstuff.eindopdracht.model.ERole;
+import nl.randomstuff.eindopdracht.model.Role;
 import nl.randomstuff.eindopdracht.model.User;
 import nl.randomstuff.eindopdracht.repository.UserRepository;
-import nl.randomstuff.eindopdracht.utils.RandomStringGenerator;
+import nl.randomstuff.eindopdracht.service.security.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
+    private PasswordEncoder encoder;
     private UserRepository userRepository;
+    private JwtUtil jwtUtil;
 
-    @Override
-    public ResponseEntity<?> createUserAsClient(User user) {
-        String randomString = RandomStringGenerator.generateAlphaNumeric(20);
-        user.setApikey(randomString);
-        User newUser = userRepository.save(user);
-        newUser.addAuthority(new Authority(newUser.getUsername(), "CLIENT"));//TODO: lijkt me beetje scheef?
-        return ResponseEntity.status(200).body(newUser.getUsername());
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setEncoder(PasswordEncoder passwordEncoder) {
+        this.encoder = passwordEncoder;
+    }
+
+    @Autowired
+    public void setJwtUtil(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
-    public ResponseEntity<?> createUserAsVenue(User user) {
-        String randomString = RandomStringGenerator.generateAlphaNumeric(20);
-        user.setApikey(randomString);
-        User newUser = userRepository.save(user);
-        newUser.addAuthority(new Authority(newUser.getUsername(), "VENUE"));//TODO: lijkt me beetje scheef?
-        return ResponseEntity.status(200).body(newUser.getUsername());
-    }
+    public ResponseEntity<?> updateUser(String bearerToken, User newUser) {
 
-    @Override
-    public ResponseEntity<?> updateUser(String username, User newUser) {
+        String jwtString = jwtUtil.internalParseJwt(bearerToken);
+        String id = jwtUtil.getUsernameFromJwtToken(jwtString);
 
-        Optional<User> currentUser = userRepository.findById(username);
+        User currentUser = getUserEntity(id);
 
-        if (currentUser.isPresent()) {
-            currentUser.get().setEmail(newUser.getEmail());
-            currentUser.get().setPassword(newUser.getPassword());
-            return ResponseEntity.status(200).body("User " + username + " updated");
-        }
-        return ResponseEntity.status(500).body("user " + username + " not found");
+        currentUser.setEmail(newUser.getEmail());
+        currentUser.setPassword(encoder.encode(newUser.getPassword()));
+        User updatedUser = userRepository.save(currentUser);
+        return ResponseEntity.status(200).body(updatedUser);
+
     }
 
     @Override
@@ -54,7 +57,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> userFromDb = userRepository.findById(username);
 
         if (userFromDb.isPresent()) {
-            userRepository.deleteById(username);
+            userRepository.deleteById(username); //TODO: als ik een user delete, wat gebeurt er met de relaties? cascade.TYPE?
             return ResponseEntity.status(200).body("user " + username + " deleted");
         }
 
@@ -67,8 +70,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> getUserResponse(String username) {
-        return ResponseEntity.status(200).body(getUserEntity(username));
+    public ResponseEntity<?> getUserResponse(String bearerToken) {
+        String jwtString = jwtUtil.internalParseJwt(bearerToken);
+        String id = jwtUtil.getUsernameFromJwtToken(jwtString);
+        return ResponseEntity.status(200).body(getUserEntity(id));
     }
 
     @Override
@@ -81,29 +86,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> getAuthorities(String username) {
-        return ResponseEntity.status(200).body(getUserEntity(username).getAuthorities());
+    public ResponseEntity<?> saveUser(User user) {
+        userRepository.save(user);
+        return ResponseEntity.status(200).body(user);
     }
 
     @Override
-    public void addAuthority(String username, String authority) {
+    public Set<Role> getAuthorities(String username) {
+//        return ResponseEntity.status(200).body(getUserEntity(username).getAuthorities());
+        return getUserEntity(username).getRoles();
+        //TODO: Get Roles?
+    }
+
+    @Override
+    public void addAuthority(String username, ERole role) {
         User user = getUserEntity(username);
-        user.addAuthority(new Authority(username, authority));
+//        user.addAuthority(new Authority(username, authority));
+        Role newRole = new Role(role);
+        user.getRoles().add(newRole);
+        //TODO: Add Role?
         userRepository.save(user);
     }
 
     @Override
-    public void removeAuthority(String username, String authority) {
+    public void removeAuthority(String username, ERole role) {
         User user = getUserEntity(username);
-        Authority authorityToRemove = user
-                .getAuthorities()
-                .stream()
-                .filter(a -> a.getAuthority().equalsIgnoreCase(authority))
-                .findAny()
-//                .isPresent()
-                .get();//TODO: hoe checken? .isPresent is non-applicable
+//        Optional<Authority> authorityToRemove = user
+//                .getAuthorities()
+//                .stream()
+//                .filter(a -> a.getAuthority().equalsIgnoreCase(authority))
+//                .findAny();
+//
+//        if (authorityToRemove.isPresent()) {
+//            user.removeAuthority(authorityToRemove.get());
+//            userRepository.save(user);
+//        }
+        //TODO: Remove Role?
 
-        user.removeAuthority(authorityToRemove);
-        userRepository.save(user);
     }
 }

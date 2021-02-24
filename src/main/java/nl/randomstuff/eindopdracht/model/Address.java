@@ -1,6 +1,8 @@
 package nl.randomstuff.eindopdracht.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,6 +30,7 @@ public class Address {
 
     @OneToOne
     @MapsId
+    @JsonIgnore
     @JoinColumn(name = "venue_id")
     private Venue venue;
 

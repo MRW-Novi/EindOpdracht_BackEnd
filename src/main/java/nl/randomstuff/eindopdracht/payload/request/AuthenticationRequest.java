@@ -1,4 +1,4 @@
-package nl.randomstuff.eindopdracht.payload;
+package nl.randomstuff.eindopdracht.payload.request;
 
 public class AuthenticationRequest {
 

@@ -1,32 +1,26 @@
 package nl.randomstuff.eindopdracht.controller;
 
-import nl.randomstuff.eindopdracht.payload.AuthenticationRequest;
-import nl.randomstuff.eindopdracht.payload.AuthenticationResponse;
-import nl.randomstuff.eindopdracht.service.CustomUserDetailsService;
-import nl.randomstuff.eindopdracht.utils.JwtUtil;
+import nl.randomstuff.eindopdracht.payload.request.LoginRequest;
+import nl.randomstuff.eindopdracht.payload.request.SignUpRequest;
+import nl.randomstuff.eindopdracht.payload.response.JwtResponse;
+import nl.randomstuff.eindopdracht.payload.response.MessageResponse;
+import nl.randomstuff.eindopdracht.service.AuthorizationService;
+import nl.randomstuff.eindopdracht.service.UserDetailsServiceImpl;
+import nl.randomstuff.eindopdracht.service.security.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthenticationController {
 
     @Autowired
-    JwtUtil jwtUtil;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+    AuthorizationService authorizationService;
 
     @GetMapping(value = "/authenticated")
     public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
@@ -34,23 +28,20 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-
-        String username = authenticationRequest.getUsername();
-        String password = authenticationRequest.getPassword();
-
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
-            );
-        } catch (BadCredentialsException exception) {
-            throw new Exception("Incorrect username or password", exception);
-        }
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-        final String jwt = jwtUtil.generateToken(userDetails);
-
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+    public ResponseEntity<JwtResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        return authorizationService.authenticateUser(loginRequest);
     }
+
+    @PostMapping(value = "/signup/customer")
+    public ResponseEntity<?> registerUserAsCustomer(@RequestBody SignUpRequest signUpRequest) {
+        return authorizationService.registerUser(signUpRequest, "customer");
+    }
+
+    @PostMapping(value = "/signup/venue")
+    public ResponseEntity<?> registerUserAsVenue(@RequestBody SignUpRequest signUpRequest) {
+        return authorizationService.registerUser(signUpRequest, "venue");
+    }
+
+
+
 }

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "Reservation")
+@Table(name = "reservation")
 public class Reservation {
 
     @Id
@@ -19,7 +19,7 @@ public class Reservation {
     private long id;
 
     @ManyToOne
-    private Client client;
+    private Customer customer;
 
     @ManyToOne
     private Venue venue;
@@ -44,12 +44,12 @@ public class Reservation {
         this.id = id;
     }
 
-    public Client getClient() {
-        return client;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public Venue getVenue() {
