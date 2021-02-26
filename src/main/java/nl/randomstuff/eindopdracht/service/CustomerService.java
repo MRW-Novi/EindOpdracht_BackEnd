@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface CustomerService {
 
-    void saveCustomerInDb(Customer customer);
+    Customer saveCustomerInDb(Customer customer);
 
     ResponseEntity<?> getAllCustomers();
 
@@ -16,7 +16,7 @@ public interface CustomerService {
 
     ResponseEntity<?> getCustomerDataResponse(String id);
 
-    ResponseEntity<?> deleteCustomer(long id);
+    ResponseEntity<?> deleteCustomer(String bearerToken);
 
     ResponseEntity<?> updateCustomer(String id, Customer customer);
 

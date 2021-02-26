@@ -1,12 +1,12 @@
 {
 	"info": {
-		"_postman_id": "2e487e6a-d2b0-44aa-9f18-d68e3894c1ac",
+		"_postman_id": "884391a0-d17b-4815-89da-eb9e8f0ac7cc",
 		"name": "EindOpdracht",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Add Accounts",
+			"name": "Add Accounts and test account update and delete",
 			"item": [
 				{
 					"name": "Create test_customer",
@@ -228,7 +228,7 @@
 								"exec": [
 									"pm.test(\"Check username and role\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.username).to.eql(\"test_user\");\r",
+									"    pm.expect(jsonData.username).to.eql(\"test_customer\");\r",
 									"    pm.expect(jsonData.roles[0]).to.eql(\"ROLE_CUSTOMER\");\r",
 									"});\r",
 									"\r",
@@ -695,7 +695,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"venueName\": \"fake venue inc.\",\r\n    \"venueEmailAddress\": \"fake_email@bullshitbusiness.org\",\r\n    \"address\": {\r\n        \"streetName\": \"troeplaan\",\r\n        \"number\": \"09AZ\",\r\n        \"city\": \"Agga\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"venueName\": \"fake venue inc.\",\r\n    \"venueEmailAddress\": \"fake_email@bullshitbusiness.org\",\r\n    \"address\": {\r\n        \"streetName\": \"troeplaan\",\r\n        \"number\": \"09AZ\",\r\n        \"city\": \"Agga\"\r\n    },\r\n    \"startTime\":\"08:30\",\r\n    \"stopTime\":\"17:00\",\r\n    \"slotDuration\":30,\r\n    \"slotsPerDay\":17,\r\n    \"peoplePerSlot\":30\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -724,13 +724,16 @@
 								"exec": [
 									"pm.test(\"Check first- and lastName\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.venueName).to.eql(\"fake venue inc.\");\r",
-									"    pm.expect(jsonData.venueEmailAddress).to.eql(\"fake_email@bullshitbusiness.org\");\r",
+									"    pm.expect(jsonData.name).to.eql(\"fake venue inc.\");\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Check reservation list is empty\", function () {\r",
+									"pm.test(\"Check reservation list is null\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.venueReservationList.length).to.eql(0);\r",
+									"    pm.expect(jsonData.venueReservationList).to.eql(null);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -751,14 +754,164 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/venue/test_venue",
+							"raw": "{{host}}/venue/1",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
 							"path": [
 								"venue",
-								"test_venue"
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete test_customer (user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_login_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/delete",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test user deleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_login_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/data",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete test_venue (venue)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{venue_login_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/venue/delete",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"venue",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test venue deleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{venue_login_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/venue/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"venue",
+								"1"
 							]
 						}
 					},
@@ -781,14 +934,16 @@
 									"});\r",
 									"\r",
 									"\r",
-									"pm.test(\"Username and Password isEqual\", function () {\r",
+									"pm.test(\"Username isEqual\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.username).to.eql(\"test_venue_reservations\");\r",
+									"    pm.expect(jsonData.username).to.eql(\"venue_reservations\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Response time is less than 200ms\", function () {\r",
 									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"venue_id\")"
 								],
 								"type": "text/javascript"
 							}
@@ -829,7 +984,7 @@
 								"exec": [
 									"pm.test(\"Check username and role\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.username).to.eql(\"test_venue_reservations\");\r",
+									"    pm.expect(jsonData.username).to.eql(\"venue_reservations\");\r",
 									"    pm.expect(jsonData.roles[0]).to.eql(\"ROLE_VENUE\");\r",
 									"});\r",
 									"\r",
@@ -910,13 +1065,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/venue/{{venue_id}}",
+							"raw": "{{host}}/venue/update",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"venue",
-								"{{venue_id}}"
+								"update"
 							]
 						}
 					},
@@ -996,7 +1151,7 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
 									"});\r",
 									"\r",
-									"pm.collectionVariables.set(\"customer_token\", pm.response.json().token);"
+									"pm.collectionVariables.set(\"customer_login_token\", pm.response.json().token);"
 								],
 								"type": "text/javascript"
 							}
@@ -1028,7 +1183,31 @@
 					"response": []
 				},
 				{
-					"name": "Add bunch of reservations 1",
+					"name": "Add reservation before now",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// pm.collectionVariables.set(\"prev_reservation_id\", pm.response.json().id);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1044,7 +1223,85 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"customerId\":0,\r\n    \"venueId\":0,\r\n    \"date\":\"22-02-2021\",\r\n    \"time\":\"11:30\",\r\n    \"groupSize\":4,\r\n    \"timeSlotIndex\":1\r\n}",
+							"raw": "{\r\n    \"customerId\":1,\r\n    \"venueId\":1,\r\n    \"date\":\"01-01-2021\",\r\n    \"time\":\"11:30\",\r\n    \"groupSize\":4,\r\n    \"timeSlotIndex\":1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/venue/add_reservation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"venue",
+								"add_reservation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get customer reservations",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_login_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/customer/data",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"customer",
+								"data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reservation in future",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customerId\":1,\r\n    \"venueId\":1,\r\n    \"date\":\"01-01-2022\",\r\n    \"time\":\"11:30\",\r\n    \"groupSize\":4,\r\n    \"timeSlotIndex\":1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1066,6 +1323,19 @@
 				},
 				{
 					"name": "Add too large reservation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1081,7 +1351,57 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"customerId\":\"2\",\r\n    \"venueId\":\"3\",\r\n    \"date\":\"22-02-2021\",\r\n    \"time\":\"11:30\",\r\n    \"groupSize\":40,\r\n    \"timeSlotIndex\":1\r\n}",
+							"raw": "{\r\n    \"customerId\":1,\r\n    \"venueId\":1,\r\n    \"date\":\"01-01-2022\",\r\n    \"time\":\"11:30\",\r\n    \"groupSize\":29,\r\n    \"timeSlotIndex\":1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/venue/add_reservation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"venue",
+								"add_reservation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add too large reservation at once",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customerId\":1,\r\n    \"venueId\":1,\r\n    \"date\":\"01-01-2022\",\r\n    \"time\":\"11:30\",\r\n    \"groupSize\":31,\r\n    \"timeSlotIndex\":1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1198,235 +1518,6 @@
 					"response": []
 				}
 			]
-		},
-		{
-			"name": "update entity test, id persistence",
-			"item": [
-				{
-					"name": "Create venue for update test",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status test\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Username and Password isEqual\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.username).to.eql(\"test_venue\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response time is less than 200ms\", function () {\r",
-									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
-									"});\r",
-									"\r",
-									"pm.collectionVariables.set(\"old_venue_password\", pm.response.json().password);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"test_venue\",\r\n    \"password\": \"venue_password\",\r\n    \"email\": \"user@venue.org\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/auth/signup/venue",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"auth",
-								"signup",
-								"venue"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Login venue",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Check username and role\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.username).to.eql(\"test_venue\");\r",
-									"    pm.expect(jsonData.roles[0]).to.eql(\"ROLE_VENUE\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response time is less than 200ms\", function () {\r",
-									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
-									"});\r",
-									"\r",
-									"pm.collectionVariables.set(\"venue_login_token\", pm.response.json().token);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{customer_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"test_venue\",\r\n    \"password\": \"venue_password\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/auth/authenticate",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"auth",
-								"authenticate"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "New Request",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": null
-					},
-					"response": []
-				},
-				{
-					"name": "Fill venue data",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{venue_login_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"venueName\": \"fake venue inc.\",\r\n    \"venueEmailAddress\": \"fake_email@bullshitbusiness.org\",\r\n    \"address\": {\r\n        \"streetName\": \"troeplaan\",\r\n        \"number\": \"09AZ\",\r\n        \"city\": \"Agga\"\r\n    },\r\n    \"startTime\":\"08:30\",\r\n    \"stopTime\":\"17:00\",\r\n    \"slotDuration\":30,\r\n    \"slotsPerDay\":17,\r\n    \"peoplePerSlot\":30\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/venue/{{venue_id}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"venue",
-								"{{venue_id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "venue data update",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{venue_login_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"venueName\": \"fake venue inc.\",\r\n    \"venueEmailAddress\": \"fake_email@bullshitbusiness.org\",\r\n    \"address\": {\r\n        \"streetName\": \"troeplaan\",\r\n        \"number\": \"09AZ\",\r\n        \"city\": \"Agga\"\r\n    },\r\n    \"startTime\":\"08:30\",\r\n    \"stopTime\":\"17:00\",\r\n    \"slotDuration\":30,\r\n    \"slotsPerDay\":17,\r\n    \"peoplePerSlot\":30\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/venue/{{venue_id}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"venue",
-								"{{venue_id}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
 		}
 	],
 	"event": [
@@ -1463,6 +1554,10 @@
 			"value": ""
 		},
 		{
+			"key": "customer_login_token",
+			"value": ""
+		},
+		{
 			"key": "old_venue_password",
 			"value": ""
 		},
@@ -1484,6 +1579,10 @@
 		},
 		{
 			"key": "user_customer",
+			"value": ""
+		},
+		{
+			"key": "venue_id_startup",
 			"value": ""
 		},
 		{

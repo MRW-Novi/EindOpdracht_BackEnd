@@ -4,7 +4,14 @@ import nl.randomstuff.eindopdracht.model.User;
 import nl.randomstuff.eindopdracht.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/user")
 @RestController
@@ -17,27 +24,28 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<?> getUsers(){
         return userService.getUsers();
     }
 
-    @GetMapping("/data")//TODO: Updating user increments or creates new child entity (customer/venue)
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('VENUE') or hasRole('ADMIN')")
+    @GetMapping("/data")
     public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String bearerToken){
         return userService.getUserResponse(bearerToken);
     }
 
-    @DeleteMapping(value = "/{username}")//TODO: secure/hide this function behind bearerToken
-    public ResponseEntity<?> deleteUser(@PathVariable("username") String username){
-        return userService.deleteUser(username);
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('VENUE') or hasRole('ADMIN')")
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String bearerToken){
+        return userService.deleteUser(bearerToken);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('VENUE') or hasRole('ADMIN')")
     @PutMapping(value = "/update")
     public ResponseEntity<?> updateUser(@RequestHeader("Authorization") String bearerToken, @RequestBody User user){
         return userService.updateUser(bearerToken, user);
     }
-
-    //TODO: how to make logout feature? force dump bearer token? handle in frontend?
-
 
 }

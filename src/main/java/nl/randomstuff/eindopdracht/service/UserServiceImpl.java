@@ -52,12 +52,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> deleteUser(String username) {
+    public ResponseEntity<?> deleteUser(String bearerToken) {
+
+        String jwtString = jwtUtil.internalParseJwt(bearerToken);
+        String username = jwtUtil.getUsernameFromJwtToken(jwtString);
 
         Optional<User> userFromDb = userRepository.findById(username);
 
         if (userFromDb.isPresent()) {
-            userRepository.deleteById(username); //TODO: als ik een user delete, wat gebeurt er met de relaties? cascade.TYPE?
+            userRepository.deleteById(username); //TODO: test user delete
             return ResponseEntity.status(200).body("user " + username + " deleted");
         }
 

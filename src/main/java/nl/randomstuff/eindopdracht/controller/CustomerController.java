@@ -4,7 +4,14 @@ import nl.randomstuff.eindopdracht.model.Customer;
 import nl.randomstuff.eindopdracht.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/customer")
 @RestController
@@ -18,29 +25,28 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<?> getCustomers() {
-        return customerService.getAllCustomers();
-    }
-
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/data")
     public ResponseEntity<?> getCustomerData(@RequestHeader("Authorization") String token) {
         return customerService.getCustomerDataResponse(token);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> deleteCustomer(@PathVariable("id") long id) {
-        return customerService.deleteCustomer(id);
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteCustomer(@RequestHeader("Authorization") String bearerToken) {
+        return customerService.deleteCustomer(bearerToken);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping(value = "/update")
     public ResponseEntity<?> updateCustomer(@RequestHeader("Authorization") String bearerToken, @RequestBody Customer customer) {
         return customerService.updateCustomer(bearerToken, customer);
     }
 
-    @GetMapping(value = "/{id}/reservations")
-    public ResponseEntity<?> getCustomerReservationsByUserId(@PathVariable("id") String id) {
-        return customerService.getCustomerReservationsByUserId(id);
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping(value = "/reservations")
+    public ResponseEntity<?> getCustomerReservationsByUserId(@RequestHeader("Authorization") String bearerToken) {
+        return customerService.getCustomerReservationsByUserId(bearerToken);
     }
 
 

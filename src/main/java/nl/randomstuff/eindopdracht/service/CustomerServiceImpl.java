@@ -1,8 +1,8 @@
 package nl.randomstuff.eindopdracht.service;
 
-import javassist.tools.web.BadHttpRequest;
 import nl.randomstuff.eindopdracht.exception.RecordNotFoundException;
 import nl.randomstuff.eindopdracht.model.Customer;
+import nl.randomstuff.eindopdracht.model.User;
 import nl.randomstuff.eindopdracht.repository.CustomerRepository;
 import nl.randomstuff.eindopdracht.service.security.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,32 +53,37 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public Customer saveCustomerInDb(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    @Override
     public Customer getCustomerEntityThroughCustomerId(long id) {
         Optional<Customer> customer = customerRepository.findById(id);
         if (customer.isPresent()) {
             return customer.get();
         }
-        throw new RecordNotFoundException("cant find user with id: "+id);
+        throw new RecordNotFoundException("cant find customer with id: "+id);
     }
 
-
     @Override
-    public ResponseEntity<?> deleteCustomer(long id) {
+    public ResponseEntity<?> deleteCustomer(String bearerToken) {
+        String jwtString = jwtUtil.internalParseJwt(bearerToken);
+        String username = jwtUtil.getUsernameFromJwtToken(jwtString);
+        User relatedUser = userService.getUserEntity(username);
+        long id = relatedUser.getCustomer().getId();
 
         Optional<Customer> customerFromDb = customerRepository.findById(id);
 
         if (customerFromDb.isPresent()) {
+            relatedUser.setCustomer(null);
+            userService.saveUser(relatedUser);
             customerRepository.deleteById(id);
-            return ResponseEntity.status(200).body("User with id " + id + " successfully deleted");
+            return ResponseEntity.status(200).body("Customer with id " + id + " successfully deleted");
         }
 
-        return ResponseEntity.status(500).body("User with id " + id + " not found.");
+        return ResponseEntity.status(500).body("Customer with id " + id + " not found.");
 
-    }
-
-    @Override
-    public void saveCustomerInDb(Customer customer) {
-        customerRepository.save(customer);
     }
 
     @Override
@@ -112,7 +117,11 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ResponseEntity<?> getCustomerReservationsByUserId(String id) {
+    public ResponseEntity<?> getCustomerReservationsByUserId(String bearerToken) {
+
+        String jwtString = jwtUtil.internalParseJwt(bearerToken);
+        String id = jwtUtil.getUsernameFromJwtToken(jwtString);
+
         return ResponseEntity
                 .status(200)
                 .body(getCustomerEntityThroughUserId(id).getCustomerReservationList());

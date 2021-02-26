@@ -1,7 +1,9 @@
 package nl.randomstuff.eindopdracht.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,6 +15,9 @@ import javax.persistence.Table;
 import java.util.List;
 
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Table(name = "customer")
 public class Customer {
 
@@ -26,11 +31,10 @@ public class Customer {
     @Column(name = "last_name")
     private String lastName;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Reservation> customerReservationList;
 
     @OneToOne(mappedBy = "customer")
-    @JsonIgnore
     private User user;
 
     public long getId() {

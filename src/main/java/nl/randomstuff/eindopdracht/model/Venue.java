@@ -1,6 +1,7 @@
 package nl.randomstuff.eindopdracht.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,11 +13,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Table(name = "venue")
 public class Venue {
 
@@ -45,11 +48,10 @@ public class Venue {
     @Column(name = "peoplePerSlot")
     private int peoplePerSlot;
 
-    @OneToMany(mappedBy = "venue")
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
     private List<Reservation> venueReservationList;
 
     @OneToOne(mappedBy = "venue")
-    @JsonIgnore
     private User user;
 
     @OneToOne(mappedBy = "venue", cascade = CascadeType.ALL)
@@ -113,14 +115,6 @@ public class Venue {
         this.slotDuration = slotDuration;
     }
 
-    public List<Reservation> getVenueReservationList() {
-        return venueReservationList;
-    }
-
-    public void setVenueReservationList(List<Reservation> venueReservationList) {
-        this.venueReservationList = venueReservationList;
-    }
-
     public int getSlotsPerDay() {
         return slotsPerDay;
     }
@@ -157,22 +151,35 @@ public class Venue {
     private boolean reservationCheck(Reservation newReservation) {
         List<Reservation> filteredReservations =
                 venueReservationList.stream()
-                        .filter(c -> c.getDate() == newReservation.getDate())
+                        .filter(c -> c.getDate().isEqual(newReservation.getDate()))
                         .filter(c -> c.getTimeSlotIndex() == newReservation.getTimeSlotIndex())
                         .collect(Collectors.toList());
+//        List<Reservation> filteredReservations = new ArrayList<>();
+
+//        for (Reservation reservation : this.getVenueReservationList()) {
+//            if (reservation.getDate().isEqual(newReservation.getDate()) && reservation.getTimeSlotIndex() == newReservation.getTimeSlotIndex()) {
+//                filteredReservations.add(reservation);
+//            }
+//        }
 
 
-        int amountofPeeps = 0;
+        int amountOfPeeps = 0;
 
         for (Reservation r : filteredReservations) {
-            amountofPeeps += r.getGroupSize();
+            amountOfPeeps += r.getGroupSize();
+
+            System.out.println(amountOfPeeps);
         }
 
-        if (amountofPeeps + newReservation.getGroupSize() <= this.peoplePerSlot) {
-            return true;
-        }
+        return amountOfPeeps + newReservation.getGroupSize() <= this.peoplePerSlot;
+    }
 
-        return false;
+    public List<Reservation> getVenueReservationList() {
+        return venueReservationList;
+    }
+
+    public void setVenueReservationList(List<Reservation> venueReservationList) {
+        this.venueReservationList = venueReservationList;
     }
 
 

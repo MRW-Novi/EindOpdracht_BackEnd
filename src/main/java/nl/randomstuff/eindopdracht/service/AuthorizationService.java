@@ -1,8 +1,11 @@
 package nl.randomstuff.eindopdracht.service;
 
 
-import nl.randomstuff.eindopdracht.exception.RecordNotFoundException;
-import nl.randomstuff.eindopdracht.model.*;
+import nl.randomstuff.eindopdracht.model.Customer;
+import nl.randomstuff.eindopdracht.model.ERole;
+import nl.randomstuff.eindopdracht.model.Role;
+import nl.randomstuff.eindopdracht.model.User;
+import nl.randomstuff.eindopdracht.model.Venue;
 import nl.randomstuff.eindopdracht.payload.request.LoginRequest;
 import nl.randomstuff.eindopdracht.payload.request.SignUpRequest;
 import nl.randomstuff.eindopdracht.payload.response.JwtResponse;
@@ -121,10 +124,10 @@ public class AuthorizationService {
 
 
         user.setRoles(roles);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
 //        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-        return ResponseEntity.ok().body(user);
+        return ResponseEntity.ok().body(savedUser);
     }
 
     /**
