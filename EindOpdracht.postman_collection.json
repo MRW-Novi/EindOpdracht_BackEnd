@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "884391a0-d17b-4815-89da-eb9e8f0ac7cc",
+		"_postman_id": "e2c67b20-a483-46b6-b6f1-28c0cbc3259e",
 		"name": "EindOpdracht",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -83,7 +83,7 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
 									"});\r",
 									"\r",
-									"pm.collectionVariables.set(\"login_token_customer\", pm.response.json().token);"
+									"pm.collectionVariables.set(\"customer_login_token\", pm.response.json().token);"
 								],
 								"type": "text/javascript"
 							}
@@ -145,7 +145,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{login_token_customer}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -190,7 +190,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{login_token_customer}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -240,7 +240,7 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
 									"});\r",
 									"\r",
-									"pm.collectionVariables.set(\"login_token_customer\", pm.response.json().token);"
+									"pm.collectionVariables.set(\"customer_login_token\", pm.response.json().token);"
 								],
 								"type": "text/javascript"
 							}
@@ -252,7 +252,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{login_token}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -307,7 +307,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{login_token_customer}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -335,7 +335,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{login_token_customer}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -392,7 +392,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{login_token_customer}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -631,7 +631,7 @@
 									"});\r",
 									"\r",
 									"pm.test(\"password is changed\", function() {\r",
-									"    pm.expect(pm.response.json().password).to.not.eql(pm.collectionVariables.get(\"old_venue_password\"))\r",
+									"    pm.expect(pm.response.json().password).to.not.eql(pm.collectionVariables.get(\"old_pw_venue\"))\r",
 									"})\r",
 									""
 								],
@@ -850,6 +850,19 @@
 				},
 				{
 					"name": "Delete test_venue (venue)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1214,7 +1227,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{customer_token}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -1292,7 +1305,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{customer_token}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -1342,7 +1355,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{customer_token}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -1392,7 +1405,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{customer_token}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -1446,7 +1459,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{customer_token}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -1496,7 +1509,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{customer_token}}",
+									"value": "{{customer_login_token}}",
 									"type": "string"
 								}
 							]
@@ -1542,14 +1555,6 @@
 	],
 	"variable": [
 		{
-			"key": "login_token",
-			"value": ""
-		},
-		{
-			"key": "old_password",
-			"value": ""
-		},
-		{
 			"key": "venue_login_token",
 			"value": ""
 		},
@@ -1558,19 +1563,7 @@
 			"value": ""
 		},
 		{
-			"key": "old_venue_password",
-			"value": ""
-		},
-		{
-			"key": "customer_password",
-			"value": ""
-		},
-		{
-			"key": "customer_token",
-			"value": ""
-		},
-		{
-			"key": "venue_id",
+			"key": "old_pw_venue",
 			"value": ""
 		},
 		{
@@ -1578,15 +1571,27 @@
 			"value": ""
 		},
 		{
+			"key": "venue_id",
+			"value": ""
+		},
+		{
+			"key": "customer_id",
+			"value": ""
+		},
+		{
+			"key": "user_venue",
+			"value": ""
+		},
+		{
 			"key": "user_customer",
 			"value": ""
 		},
 		{
-			"key": "venue_id_startup",
+			"key": "old_venue_password",
 			"value": ""
 		},
 		{
-			"key": "login_token_customer",
+			"key": "customer_password",
 			"value": ""
 		}
 	]
