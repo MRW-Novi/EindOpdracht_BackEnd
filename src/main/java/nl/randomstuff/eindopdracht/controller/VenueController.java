@@ -25,7 +25,7 @@ public class VenueController {
     private VenueService venueService;
 
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('VENUE') or hasRole('ADMIN')")
-    @GetMapping("/all")//TODO: compact this list to bare necessities
+    @GetMapping("/all")
     public ResponseEntity<?> getVenues() {
         return venueService.getAllVenues();
     }
