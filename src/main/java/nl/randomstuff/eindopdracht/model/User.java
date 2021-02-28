@@ -1,6 +1,14 @@
 package nl.randomstuff.eindopdracht.model;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.Set;
 
 @Entity
@@ -17,9 +25,6 @@ public class User {
 
     @Column(nullable = false)
     private boolean enabled = true;
-
-    @Column
-    private String apikey;
 
     @Column
     private String email;
@@ -78,14 +83,6 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public String getApikey() {
-        return apikey;
-    }
-
-    public void setApikey(String apikey) {
-        this.apikey = apikey;
     }
 
     public String getEmail() {

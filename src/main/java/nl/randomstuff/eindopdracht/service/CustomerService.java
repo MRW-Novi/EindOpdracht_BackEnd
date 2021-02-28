@@ -2,6 +2,7 @@ package nl.randomstuff.eindopdracht.service;
 
 import nl.randomstuff.eindopdracht.model.Customer;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface CustomerService {
@@ -22,6 +23,7 @@ public interface CustomerService {
 
     ResponseEntity<?> getCustomerReservationsByUserId(String id);
 
+    ResponseEntity<?> uploadImage(String bearerToken, MultipartFile image) throws Exception;
 
-
+    ResponseEntity<?> downloadImage(String bearerToken);
 }

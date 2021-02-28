@@ -54,7 +54,7 @@ public class VenueController {
         return venueService.addReservation(reservationRequest);
     }
 
-    @PreAuthorize("hasRole('CUSTOMER') or hasRole('VENUE') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('VENUE') or hasRole('ADMIN')")
     @GetMapping(value = "/{id}/reservations")
     public ResponseEntity<?> getVenueReservations(@PathVariable("id") long id){
         return venueService.getVenueReservationsByVenueId(id);

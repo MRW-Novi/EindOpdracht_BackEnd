@@ -92,6 +92,8 @@ public class VenueServiceImpl implements VenueService {
         VenueResponse venueResponse = new VenueResponse();
         venueResponse.setId(venue.getId());
         venueResponse.setName(venue.getVenueName());
+        venueResponse.setAddress(venue.getAddress());
+        venueResponse.setEmail(venue.getVenueEmailAddress());
 
         return ResponseEntity.status(200).body(
                 venueResponse

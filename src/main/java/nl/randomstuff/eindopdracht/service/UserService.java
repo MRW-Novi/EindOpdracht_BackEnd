@@ -4,7 +4,6 @@ import nl.randomstuff.eindopdracht.model.ERole;
 import nl.randomstuff.eindopdracht.model.Role;
 import nl.randomstuff.eindopdracht.model.User;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
@@ -31,5 +30,4 @@ public interface UserService {
 
     void addAuthority(String username, ERole role);
 
-    void removeAuthority(String username, ERole role);
 }

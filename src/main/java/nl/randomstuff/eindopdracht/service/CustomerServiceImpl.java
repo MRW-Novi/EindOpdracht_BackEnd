@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -63,7 +64,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (customer.isPresent()) {
             return customer.get();
         }
-        throw new RecordNotFoundException("cant find customer with id: "+id);
+        throw new RecordNotFoundException("cant find customer with id: " + id);
     }
 
     @Override
@@ -126,4 +127,33 @@ public class CustomerServiceImpl implements CustomerService {
                 .status(200)
                 .body(getCustomerEntityThroughUserId(id).getCustomerReservationList());
     }
+
+    @Override
+    public ResponseEntity<?> uploadImage(String bearerToken, MultipartFile image) throws Exception {
+
+        String jwtString = jwtUtil.internalParseJwt(bearerToken);
+        String id = jwtUtil.getUsernameFromJwtToken(jwtString);
+
+        Customer customerEntityThroughUserId = getCustomerEntityThroughUserId(id);
+
+        customerEntityThroughUserId.setImageBytes(image.getBytes());
+        saveCustomerInDb(customerEntityThroughUserId);
+
+        return ResponseEntity.ok().body("image added succesfully");
+
+    }
+
+    @Override
+    public ResponseEntity<?> downloadImage(String bearerToken) {
+        return ResponseEntity
+                .ok()
+                .body(
+                        getCustomerEntityThroughUserId(
+                                jwtUtil.getUsernameFromJwtToken(
+                                        jwtUtil.internalParseJwt(bearerToken)))
+                                .getImageBytes()
+                );
+    }
+
+
 }

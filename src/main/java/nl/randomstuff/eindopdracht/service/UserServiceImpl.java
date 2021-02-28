@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> userFromDb = userRepository.findById(username);
 
         if (userFromDb.isPresent()) {
-            userRepository.deleteById(username); //TODO: test user delete
+            userRepository.deleteById(username);
             return ResponseEntity.status(200).body("user " + username + " deleted");
         }
 
@@ -98,7 +98,6 @@ public class UserServiceImpl implements UserService {
     public Set<Role> getAuthorities(String username) {
 //        return ResponseEntity.status(200).body(getUserEntity(username).getAuthorities());
         return getUserEntity(username).getRoles();
-        //TODO: Get Roles?
     }
 
     @Override
@@ -107,24 +106,8 @@ public class UserServiceImpl implements UserService {
 //        user.addAuthority(new Authority(username, authority));
         Role newRole = new Role(role);
         user.getRoles().add(newRole);
-        //TODO: Add Role?
         userRepository.save(user);
     }
 
-    @Override
-    public void removeAuthority(String username, ERole role) {
-        User user = getUserEntity(username);
-//        Optional<Authority> authorityToRemove = user
-//                .getAuthorities()
-//                .stream()
-//                .filter(a -> a.getAuthority().equalsIgnoreCase(authority))
-//                .findAny();
-//
-//        if (authorityToRemove.isPresent()) {
-//            user.removeAuthority(authorityToRemove.get());
-//            userRepository.save(user);
-//        }
-        //TODO: Remove Role?
 
-    }
 }

@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -31,11 +32,23 @@ public class Customer {
     @Column(name = "last_name")
     private String lastName;
 
+    @Lob
+    @Column(name = "image")
+    private byte[] imageBytes;
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Reservation> customerReservationList;
 
     @OneToOne(mappedBy = "customer")
     private User user;
+
+    public byte[] getImageBytes() {
+        return imageBytes;
+    }
+
+    public void setImageBytes(byte[] imageBytes) {
+        this.imageBytes = imageBytes;
+    }
 
     public long getId() {
         return id;

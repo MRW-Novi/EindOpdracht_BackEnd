@@ -1,5 +1,6 @@
 package nl.randomstuff.eindopdracht.payload.response;
 
+import nl.randomstuff.eindopdracht.model.Address;
 import nl.randomstuff.eindopdracht.model.Reservation;
 
 import java.util.List;
@@ -11,6 +12,26 @@ public class VenueResponse {
     private String name;
 
     private List<Reservation> venueReservationList;
+
+    private Address address;
+
+    private String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
     public long getId() {
         return id;
